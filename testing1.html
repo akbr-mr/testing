@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top-Up Game</title>
+    <style>
+        body {
+            background-color: #eaeeea;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background-color: #77ee7d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+        }
+        .form-container h1 {
+            color: #0f0108;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box; /* memastikan ukuran termasuk padding */
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #3b10f8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #6dddec;
+            color :#0e0208
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Top-Up Game</h1>
+        <form id="topupForm">
+            <label for="game">Pilih Game:</label>
+            <select id="game" name="game" required>
+                <option value="" disabled selected>--Pilih Game--</option>
+                <option value="Mobile Legends">Mobile Legends</option>
+                <option value="PUBG Mobile">PUBG Mobile</option>
+                <option value="Free Fire">Free Fire</option>
+                <option value="Genshin Impact">Genshin Impact</option>
+            </select>
+            <div id="gameError" class="error" style="display: none;">Silakan pilih game!</div>
+
+            <label for="userID">ID Game:</label>
+            <input type="text" id="userID" name="userID" placeholder="Masukkan ID Game Anda" required>
+            <div id="userIDError" class="error" style="display: none;">ID tidak valid! (Harus 8 digit angka)</div>
+
+            <label for="jumlah">Jumlah Diamond/Kredit:</label>
+            <select id="jumlah" name="jumlah" required>
+                <option value="" disabled selected>--Pilih Jumlah--</option>
+                <option value="3">3 (Rp 3,000)</option>
+                <option value="10">10 (Rp 10,000)</option>
+                <option value="50">50 (Rp 45,000)</option>
+                <option value="75">75 (Rp 65,000)</option>
+                <option value="100">100 (Rp 100,000)</option>
+                <option value="150">150 (Rp 135.000)</option>
+                <option value="500">500 (Rp 490,000)</option>
+            </select>
+
+            <label for="voucher">Kode Voucher:</label>
+            <input type="text" id="voucher" name="voucher" placeholder="Masukkan kode voucher (opsional)">
+            <div id="voucherError" class="error" style="display: none;">Kode voucher tidak valid!</div>
+
+            <button type="button" onclick="hitungTotal()">Hitung Total</button>
+        </form>
+        <div id="result" style="margin-top: 20px; text-align: left; font-weight: bold; font-size: 14px;"></div>
+    </div>
+
+    <script>
+        function hitungTotal() {
+            // Mengambil nilai input
+            const game = document.getElementById("game").value;
+            const userID = document.getElementById("userID").value;
+            const jumlah = document.getElementById("jumlah").value;
+            const voucher = document.getElementById("voucher").value.trim();
+
+            // Validasi input
+            let valid = true;
+
+            // Validasi game
+            if (!game) {
+                document.getElementById("gameError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("gameError").style.display = "none";
+            }
+
+            // Validasi ID Game (harus 8 digit angka)
+            if (!/^\d{8}$/.test(userID)) {
+                document.getElementById("userIDError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("userIDError").style.display = "none";
+            }
+
+            // Validasi kode voucher (jika ada)
+            if (voucher && voucher.toLowerCase() !== "mercu") {
+                document.getElementById("voucherError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("voucherError").style.display = "none";
+            }
+
+            if (!valid) {
+                return;
+            }
+
+            // Harga awal
+            let hargaAwal = parseInt(jumlah) * 1000;
+
+            // Hitung diskon jika ada
+            let diskon = 0;
+            if (voucher.toLowerCase() === "mercu") {
+                diskon = hargaAwal * 0.15;
+            }
+
+            // Harga setelah diskon
+            let hargaSetelahDiskon = hargaAwal - diskon;
+
+            // Hitung PPN dengan 5%
+            const ppn = hargaSetelahDiskon * 0.05;
+
+            // Total akhir
+            const total = hargaSetelahDiskon + ppn;
+
+            // Tampilkan hasil
+            document.getElementById("result").innerHTML = `
+                <p>Nama Game: ${game}</p>
+                <p>Jumlah Diamond: ${jumlah}</p>
+                <p>Harga Awal: Rp ${hargaAwal.toLocaleString("id-ID")}</p>
+                <p>Diskon: Rp ${diskon.toLocaleString("id-ID")}</p>
+                <p>PPN (5%): Rp ${ppn.toLocaleString("id-ID")}</p>
+                <p><strong>Total yang Harus Dibayar: Rp ${total.toLocaleString("id-ID")}</strong></p>
+            `;
+        }
+    </script>
+</body>
+</html>
